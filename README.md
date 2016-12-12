@@ -16,7 +16,7 @@ see test.cpp
 
     CumBuffer buffering;
     
-    if(cumbuffer_defines::OP_RSLT_OK == buffering.Init(9)) //create buffer with 9 bytes
+    if(cumbuffer_defines::OP_RSLT_OK != buffering.Init(9)) //create buffer with 9 bytes
     {
         return false; 
     } 
