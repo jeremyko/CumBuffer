@@ -16,7 +16,7 @@ see test.cpp
 
     CumBuffer buffering;
     
-    if(cumbuffer_defines::OP_RSLT_OK == buffering.Init(9)) //버퍼길이 9 byte로 초기화 
+    if(cumbuffer_defines::OP_RSLT_OK == buffering.Init(9)) //create buffer with 9 bytes
     {
         return false; 
     } 
@@ -40,7 +40,7 @@ see test.cpp
         return false;
     }
 
-    if(buffering.GetCumulatedLen()!=7) //현재까지 저장된 데이터 길이 7
+    if(buffering.GetCumulatedLen()!=7) 
     {
         return false;
     }
