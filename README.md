@@ -6,7 +6,7 @@ accumulating buffer for c++
 
 ### When ###
 
-if you want accumulate data comming from other source (from socket etc.) but don't want dynamic allocation for buffering.
+if you want accumulate data comming from other source (socket etc) but don't want dynamic allocation for every incomming data.
 
 ### Usage ###
 
