@@ -12,4 +12,60 @@ if you want accumulate data comming from other source (from socket etc.) but don
 
 see test.cpp
 
+    #include "CumBuffer.h"
+
+    CumBuffer buffering;
+    
+    if(cumbuffer_defines::OP_RSLT_OK == buffering.Init(9)) //버퍼길이 9 byte로 초기화 
+    {
+        return false; 
+    } 
+    
+    char data   [100];
+    char dataOut[100];
+    
+    //append 3 bytes 
+    memset(data, 0x00, sizeof(data));
+    memcpy(data, (void*)"aaa", 3);
+    if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(3, data))
+    {
+        return false;
+    }
+
+    //append 4 bytes
+    memset(data, 0x00, sizeof(data));
+    memcpy(data, (void*)"abbb", 4);
+    if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(4, data))
+    {
+        return false;
+    }
+
+    if(buffering.GetCumulatedLen()!=7) //현재까지 저장된 데이터 길이 7
+    {
+        return false;
+    }
+
+    //get 4 bytes
+    memset(dataOut, 0x00, sizeof(dataOut));
+    if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(4, dataOut))
+    {
+        return false;
+    }
+
+    if( strcmp("aaaa", dataOut)!=0)
+    {
+        return false;
+    }
+    
+    //get 3 bytes
+    memset(dataOut, 0x00, sizeof(dataOut));
+    if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(3, dataOut))
+    {
+        return false;
+    }
+
+    if( strcmp("bbb", dataOut)!=0)
+    {
+        return false;
+    }
 
