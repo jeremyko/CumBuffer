@@ -1,29 +1,18 @@
-# Compiled Object files
-*.slo
-*.lo
+# Add any directories, files, or patterns you don't want to be tracked by version control
+*.swp
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+*.bak
+Debug
+Release
+.vs
+*.log
+*.vcxproj.*
+*.vcxproj
+stdafx.*
+targetver.h
+*.sln
+*.suo
+*.db
+*.opendb
+ipch
+test
