@@ -32,7 +32,7 @@ using namespace std;
 
 namespace cumbuffer_defines
 {
-    const int DEFAULT_BUFFER_LEN = 1024 * 1024 * 1;
+    const int DEFAULT_BUFFER_LEN = 1024 * 4;
 
     enum OP_RESULT
     {
