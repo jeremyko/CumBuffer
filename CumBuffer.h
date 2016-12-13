@@ -50,7 +50,7 @@ class CumBuffer
   public:
     CumBuffer() { }
 
-    virtual ~CumBuffer() { if(pBuffer_) { delete pBuffer_; } };
+    virtual ~CumBuffer() { if(pBuffer_) { delete [] pBuffer_; } };
 
     //------------------------------------------------------------------------
     cumbuffer_defines::OP_RESULT    Init(int nMaxBufferLen = cumbuffer_defines::DEFAULT_BUFFER_LEN)
@@ -63,7 +63,7 @@ class CumBuffer
 
         try
         {
-            pBuffer_ = new char(nBufferLen_);
+            pBuffer_ = new char [nBufferLen_];
         }
         catch (exception& e)
         {
