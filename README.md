@@ -4,6 +4,11 @@
 
 accumulating buffer for c++ 
 
+### Why ###
+
+Let's take network programming as an example.
+It is necessary to accumulate small pieces of data of arbitrary length to be received. We will process this data when a whole packet length is received. This is a small c ++ class for this case.
+
 ### When ###
 
 if you want accumulate data comming from other source (socket etc) but don't want dynamic allocation for every incomming data.
