@@ -24,6 +24,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <stdint.h>
 
 //#define CUMBUFFER_DEBUG
