@@ -69,3 +69,6 @@ see test.cpp
         return false;
     }
 
+### benchmark ###
+
+https://gist.github.com/jeremyko/5ddd7796da25918962da0f6ad34e02ae
