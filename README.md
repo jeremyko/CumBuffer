@@ -11,7 +11,7 @@ It is necessary to accumulate small pieces of data of arbitrary length to be rec
 
 ### When ###
 
-if you want accumulate data comming from other source (socket etc) but don't want dynamic allocation for every incomming data.
+if you're not using boost::asio::streambuf and if you want accumulate data comming from other source (socket etc) but don't want dynamic allocation for every incomming data. 
 
 ### Usage ###
 
