@@ -1,3 +1,5 @@
+#ifndef __CUMBUFFER_HPP__
+#define __CUMBUFFER_HPP__
 /****************************************************************************
  Copyright (c) 2016, ko jung hyun
  
@@ -293,6 +295,7 @@ class CumBuffer
     uint64_t    nCurTail_ __attribute__ ((aligned (64))) ; 
 };
 
+#endif
 
 
 
