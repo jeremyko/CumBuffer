@@ -217,8 +217,8 @@ class CumBuffer
         {
             if (nBufferLen_ < nCurHead_ + nLen)
             {
-                int nFirstBlockLen = nBufferLen_ - nCurHead_;
-                int nSecondBlockLen = nLen - nFirstBlockLen;
+                size_t nFirstBlockLen = nBufferLen_ - nCurHead_;
+                size_t nSecondBlockLen = nLen - nFirstBlockLen;
 #ifdef CUMBUFFER_DEBUG
                 std::cout << "    ln:" << __LINE__ << " / nFirstBlockLen ="<<nFirstBlockLen<<"\n"; //debug
                 std::cout << "    ln:" << __LINE__ << " / nSecondBlockLen="<<nSecondBlockLen<<"\n"; //debug
@@ -289,8 +289,8 @@ class CumBuffer
   private:
 
     char*       pBuffer_;
-    int         nBufferLen_;
-    int         nCumulatedLen_;
+    size_t      nBufferLen_;
+    size_t      nCumulatedLen_;
     uint64_t    nCurHead_ __attribute__ ((aligned (64))) ; 
     uint64_t    nCurTail_ __attribute__ ((aligned (64))) ; 
 };
