@@ -80,14 +80,19 @@ TEST(Exceptional, BufferFull)
     memcpy(data,(void*)"aaaaa", 5);
     ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
 
-    EXPECT_EQ(strncmp("aaaaa", buffering.GetDataPtr(),5 ), 0 );
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(5, dataOut));
+    EXPECT_EQ(strncmp("aaaaa", dataOut, 5 ), 0 ); 
+
     ASSERT_TRUE(cumbuffer_defines::OP_RSLT_INVALID_LEN == buffering.GetData(10, dataOut));
 
     //-------- 
     memset(data, 0x00, sizeof(data));
     memcpy(data, (void*)"bbbbb", 5);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
-    EXPECT_EQ   (strncmp("aaaaabbbbb", buffering.GetDataPtr(),10 ), 0 );
+    
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(10, dataOut));
+    EXPECT_EQ(strncmp("aaaaabbbbb", dataOut, 10 ), 0 ); 
+    
     EXPECT_EQ   (buffering.GetCumulatedLen(), 10);
     EXPECT_EQ   (buffering.GetCurTailPos(), 10);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_INVALID_LEN ==buffering.GetData(11, dataOut));
@@ -112,7 +117,10 @@ TEST(Exceptional, BufferFull)
     memset(data,0x00, sizeof(data));
     memcpy(data,(void*)"ccc", 3);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK ==buffering.Append(3, data));
-    EXPECT_EQ   (strncmp("cccaabbbbb", buffering.GetDataPtr(),10 ), 0 );
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(10, dataOut));
+    EXPECT_EQ(strncmp("aabbbbbccc", dataOut, 10 ), 0 ); 
+
     EXPECT_EQ   (buffering.GetCurTailPos(), 3);
     EXPECT_EQ   (buffering.GetCumulatedLen(), 10);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_INVALID_LEN ==buffering.GetData(11, dataOut));
@@ -137,7 +145,10 @@ TEST(Exceptional, BufferFull)
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK ==buffering.Append(3, data));
     EXPECT_EQ   (buffering.GetCurTailPos(), 6);
     EXPECT_EQ   (buffering.GetCurHeadPos(), 6);
-    EXPECT_EQ   (strncmp("cccdddbbbb", buffering.GetDataPtr(),10 ), 0 );
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(10, dataOut));
+    EXPECT_EQ(strncmp("bbbbcccddd", dataOut, 10 ), 0 ); 
+
     EXPECT_EQ   (buffering.GetCumulatedLen(), 10);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_INVALID_LEN ==buffering.GetData(11, dataOut));
 
@@ -160,7 +171,10 @@ TEST(Exceptional, BufferFull)
     memset(data, 0x00, sizeof(data));
     memcpy(data,(void*)"eeeeee", 6);
     ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK ==buffering.Append(6, data));
-    EXPECT_EQ   (strncmp("eecdddeeee", buffering.GetDataPtr(),10 ), 0 );
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(10, dataOut));
+    EXPECT_EQ(strncmp("cdddeeeeee", dataOut, 10 ), 0 ); 
+
     EXPECT_EQ   (buffering.GetCurHeadPos(), 2);
     EXPECT_EQ   (buffering.GetCurTailPos(), 2);
     EXPECT_EQ   (buffering.GetCumulatedLen(), 10);

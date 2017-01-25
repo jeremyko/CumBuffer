@@ -83,8 +83,8 @@ class CumBuffer
 #ifdef CUMBUFFER_DEBUG
         std::cout <<"\n["<< __func__ <<"]----------------  \n"; //debug
         std::cout <<"    nLen=" << nLen  << " [" << pData<< "] \n";
-#endif
         DebugPos(__LINE__);
+#endif
 
         if( nBufferLen_ < nLen )
         {
@@ -109,7 +109,9 @@ class CumBuffer
                 memcpy(pBuffer_ + nCurTail_, pData, nLen);
                 nCurTail_ += nLen;
                 nCumulatedLen_ += nLen;
+#ifdef CUMBUFFER_DEBUG
                 DebugPos(__LINE__);
+#endif
 
                 return cumbuffer_defines::OP_RSLT_OK;
             }
@@ -153,7 +155,9 @@ class CumBuffer
 
                     nCurTail_ = nSecondBlockLen;
                     nCumulatedLen_ += nLen;
+#ifdef CUMBUFFER_DEBUG
                     DebugPos(__LINE__);
+#endif
                     return cumbuffer_defines::OP_RSLT_OK;
                 }
                 else
@@ -170,7 +174,9 @@ class CumBuffer
                 memcpy(pBuffer_+nCurTail_ , pData, nLen); //from start 
                 nCurTail_ += nLen;
                 nCumulatedLen_ += nLen;
+#ifdef CUMBUFFER_DEBUG
                 DebugPos(__LINE__);
+#endif
                 return cumbuffer_defines::OP_RSLT_OK;
             }
         }
@@ -179,17 +185,25 @@ class CumBuffer
     }
 
     //------------------------------------------------------------------------
-    cumbuffer_defines::OP_RESULT    GetData(size_t nLen, char* pDataOut)
+    cumbuffer_defines::OP_RESULT    PeekData(size_t nLen, char* pDataOut)
+    {
+        return GetData(nLen, pDataOut, true);
+    }
+
+    //------------------------------------------------------------------------
+    cumbuffer_defines::OP_RESULT    GetData(size_t nLen, char* pDataOut, bool bPeek=false)
     {
         //std::cout <<"\n["<< __func__ <<"]----------------  \n"; //debug
+#ifdef CUMBUFFER_DEBUG
         DebugPos(__LINE__);
+#endif
 
         if(nCumulatedLen_ == 0 )
         {
 #ifdef CUMBUFFER_DEBUG
-                std::cout << "    ln:" << __LINE__ << " / no data\n"; //debug
+            std::cout << "    ln:" << __LINE__ << " / no data\n"; //debug
 #endif
-                return cumbuffer_defines::OP_RSLT_NO_DATA;
+            return cumbuffer_defines::OP_RSLT_NO_DATA;
         }
         else if(nCumulatedLen_ < nLen)
         {
@@ -210,7 +224,10 @@ class CumBuffer
             else
             {
                 memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
-                nCurHead_ += nLen;
+                if(!bPeek)
+                {
+                    nCurHead_ += nLen;
+                }
             }
         }
         else// if(nCurTail_ <= nCurHead_)
@@ -230,7 +247,10 @@ class CumBuffer
                     memcpy(pDataOut , pBuffer_+nCurHead_, nFirstBlockLen); 
                     memcpy(pDataOut+nFirstBlockLen , pBuffer_, nSecondBlockLen); 
 
-                    nCurHead_ =nSecondBlockLen ;
+                    if(!bPeek)
+                    {
+                        nCurHead_ =nSecondBlockLen ;
+                    }
                 }
                 else
                 {
@@ -243,22 +263,32 @@ class CumBuffer
             else
             {
                 memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
-                nCurHead_ += nLen;
+                if(!bPeek)
+                {
+                    nCurHead_ += nLen;
+                }
             }
         }
 
-        nCumulatedLen_ -= nLen;
+        if(!bPeek)
+        {
+            nCumulatedLen_ -= nLen;
+        }
 
+#ifdef CUMBUFFER_DEBUG
         DebugPos(__LINE__);
+#endif
 
         return cumbuffer_defines::OP_RSLT_OK;
     }
 
     //------------------------------------------------------------------------
+    /*
     char*  GetDataPtr()
     {
         return pBuffer_ + nCurHead_;
     }
+    */
 
     //------------------------------------------------------------------------
     int GetCumulatedLen()
@@ -281,9 +311,7 @@ class CumBuffer
     //------------------------------------------------------------------------
     void    DebugPos(int nLine)
     {
-#ifdef CUMBUFFER_DEBUG
         std::cout << "    line=" <<nLine<<"\t/ nCurHead_=" << nCurHead_  << "/ nCurTail_= " << nCurTail_ << "\n";
-#endif
     }
 
   private:
