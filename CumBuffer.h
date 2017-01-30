@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+// https://github.com/jeremyko/CumBuffer
 
 // NO THREAD SAFETY HERE
 ///////////////////////////////////////////////////////////////////////////////
@@ -30,8 +31,6 @@
 #include <stdint.h>
 
 //#define CUMBUFFER_DEBUG
-
-using namespace std;
 
 namespace cumbuffer_defines
 {
@@ -43,7 +42,8 @@ namespace cumbuffer_defines
         OP_RSLT_NO_DATA,
         OP_RSLT_BUFFER_FULL,
         OP_RSLT_ALLOC_FAILED,
-        OP_RSLT_INVALID_LEN
+        OP_RSLT_INVALID_LEN,
+        OP_RSLT_INVALID_USAGE
     } ;
 } ;
 
@@ -68,7 +68,7 @@ class CumBuffer
         {
             pBuffer_ = new char [nBufferLen_];
         }
-        catch (exception& e)
+        catch (std::exception& e)
         {
             std::cout << e.what() << "\n";
             return cumbuffer_defines::OP_RSLT_ALLOC_FAILED;
@@ -187,29 +187,42 @@ class CumBuffer
     //------------------------------------------------------------------------
     cumbuffer_defines::OP_RESULT    PeekData(size_t nLen, char* pDataOut)
     {
-        return GetData(nLen, pDataOut, true);
+        return GetData(nLen, pDataOut, true, false);
     }
 
     //------------------------------------------------------------------------
-    cumbuffer_defines::OP_RESULT    GetData(size_t nLen, char* pDataOut, bool bPeek=false)
+    cumbuffer_defines::OP_RESULT    MoveCurHeader(size_t nLen)
     {
-        //std::cout <<"\n["<< __func__ <<"]----------------  \n"; //debug
+        //PeekData 사용해서 처리한 data length 만큼 버퍼내 nCurHead_ 를 이동.
+        return GetData(nLen, NULL, false, true);
+    }
+
+    //------------------------------------------------------------------------
+    cumbuffer_defines::OP_RESULT    GetData(size_t  nLen, 
+                                            char*   pDataOut, 
+                                            bool    bPeek=false, 
+                                            bool    bMoveHeaderOnly=false)
+    {
+        if(bPeek && bMoveHeaderOnly)
+        {
+#ifdef CUMBUFFER_DEBUG
+            std::cout << "    ln:" << __LINE__ << " / invalid usage\n"; //debug
+#endif
+            return cumbuffer_defines::OP_RSLT_INVALID_USAGE;
+        }
+
 #ifdef CUMBUFFER_DEBUG
         DebugPos(__LINE__);
 #endif
 
-        if(nCumulatedLen_ == 0 )
+        cumbuffer_defines::OP_RESULT nRslt = ValidateBuffer(nLen);
+        if(cumbuffer_defines::OP_RSLT_OK!=nRslt )
         {
 #ifdef CUMBUFFER_DEBUG
-            std::cout << "    ln:" << __LINE__ << " / no data\n"; //debug
+            DebugPos(__LINE__);
 #endif
-            return cumbuffer_defines::OP_RSLT_NO_DATA;
+            return nRslt;
         }
-        else if(nCumulatedLen_ < nLen)
-        {
-            return cumbuffer_defines:: OP_RSLT_INVALID_LEN;
-        }
-        
 
         if(nCurTail_ > nCurHead_)
         {
@@ -223,7 +236,10 @@ class CumBuffer
             }
             else
             {
-                memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
+                if(!bMoveHeaderOnly)
+                {
+                    memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
+                }
                 if(!bPeek)
                 {
                     nCurHead_ += nLen;
@@ -244,8 +260,11 @@ class CumBuffer
                 if( nCurTail_ > 0 && 
                     nCurTail_ >= nSecondBlockLen )
                 {
-                    memcpy(pDataOut , pBuffer_+nCurHead_, nFirstBlockLen); 
-                    memcpy(pDataOut+nFirstBlockLen , pBuffer_, nSecondBlockLen); 
+                    if(!bMoveHeaderOnly)
+                    {
+                        memcpy(pDataOut , pBuffer_+nCurHead_, nFirstBlockLen); 
+                        memcpy(pDataOut+nFirstBlockLen , pBuffer_, nSecondBlockLen); 
+                    }
 
                     if(!bPeek)
                     {
@@ -262,7 +281,11 @@ class CumBuffer
             }
             else
             {
-                memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
+                if(!bMoveHeaderOnly)
+                {
+                    memcpy(pDataOut, pBuffer_ + nCurHead_, nLen);
+                }
+
                 if(!bPeek)
                 {
                     nCurHead_ += nLen;
@@ -283,13 +306,20 @@ class CumBuffer
     }
 
     //------------------------------------------------------------------------
-    /*
-    char*  GetDataPtr()
+    cumbuffer_defines::OP_RESULT ValidateBuffer(size_t nLen)
     {
-        return pBuffer_ + nCurHead_;
-    }
-    */
+        if(nCumulatedLen_ == 0 )
+        {
+            return cumbuffer_defines::OP_RSLT_NO_DATA;
+        }
+        else if(nCumulatedLen_ < nLen)
+        {
+            return cumbuffer_defines:: OP_RSLT_INVALID_LEN;
+        }
 
+        return cumbuffer_defines::OP_RSLT_OK;
+    }
+        
     //------------------------------------------------------------------------
     size_t GetCumulatedLen()
     {
@@ -324,6 +354,14 @@ class CumBuffer
     void    DebugPos(int nLine)
     {
         std::cout << "    line=" <<nLine<<"\t/ nCurHead_=" << nCurHead_  << "/ nCurTail_= " << nCurTail_ << "\n";
+    }
+
+    //------------------------------------------------------------------------
+    void ReSet()
+    {
+        nCumulatedLen_=0;
+        nCurHead_=0;
+        nCurTail_=0;
     }
 
   private:

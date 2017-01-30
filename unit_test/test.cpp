@@ -66,6 +66,28 @@ TEST(Basic, AppendAndGetLoop)
 }
 
 //-----------------------------------------------------------------------------
+TEST(Basic, MoveCurHeader) 
+{
+    char data[100];
+    char dataOut[100];
+
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Init(10)); 
+    memcpy(data,(void*)"abcde", 5);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(5, dataOut));
+    EXPECT_EQ(strncmp("abcde", dataOut, 5 ), 0 ); 
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_INVALID_LEN == buffering.MoveCurHeader(11));
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.MoveCurHeader(2));
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(3, dataOut));
+    EXPECT_EQ(strncmp("cde", dataOut, 3 ), 0 ); 
+    EXPECT_EQ   (buffering.GetCurHeadPos(), 2);
+    EXPECT_EQ   (buffering.GetCumulatedLen(), 3);
+}
+
+//-----------------------------------------------------------------------------
 TEST(Exceptional, BufferFull) 
 {
     char data[100];
