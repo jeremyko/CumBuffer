@@ -70,7 +70,11 @@ class CumBuffer
         }
         catch (std::exception& e)
         {
+#ifdef CUMBUFFER_DEBUG
             std::cout << e.what() << "\n";
+#endif
+            strErrMsg_="alloc failed :";
+            strErrMsg_+= e.what();
             return cumbuffer_defines::OP_RSLT_ALLOC_FAILED;
         }
 
@@ -81,7 +85,7 @@ class CumBuffer
     cumbuffer_defines::OP_RESULT    Append(size_t nLen, char* pData)
     {
 #ifdef CUMBUFFER_DEBUG
-        std::cout <<"\n["<< __func__ <<"]----------------  \n"; //debug
+        std::cout <<"\n["<< __func__ <<"]----------------  \n"; 
         std::cout <<"    nLen=" << nLen  << " [" << pData<< "] \n";
         DebugPos(__LINE__);
 #endif
@@ -89,15 +93,17 @@ class CumBuffer
         if( nBufferLen_ < nLen )
         {
 #ifdef CUMBUFFER_DEBUG
-            std::cout << "    ln:" << __LINE__ << " / invalid len!\n"; //debug
+            std::cout << "    ln:" << __LINE__ << " / invalid len!\n"; 
 #endif
+            strErrMsg_="invalid length";
             return cumbuffer_defines::OP_RSLT_INVALID_LEN;
         }
         else if( nBufferLen_ ==  nCumulatedLen_ )
         {
 #ifdef CUMBUFFER_DEBUG
-            std::cout << "    ln:" << __LINE__ << " / buffer full!\n"; //debug
+            std::cout << "    ln:" << __LINE__ << " / buffer full!\n";
 #endif
+            strErrMsg_="buffer full";
             return cumbuffer_defines::OP_RSLT_BUFFER_FULL;
         }
 
@@ -112,20 +118,19 @@ class CumBuffer
 #ifdef CUMBUFFER_DEBUG
                 DebugPos(__LINE__);
 #endif
-
                 return cumbuffer_defines::OP_RSLT_OK;
             }
             else
             {
 #ifdef CUMBUFFER_DEBUG
-                std::cout << "    ln:" << __LINE__ << " / buffer full!\n"; //debug
+                std::cout << "    ln:" << __LINE__ << " / buffer full!\n"; 
 #endif
+                strErrMsg_="buffer full";
                 return cumbuffer_defines::OP_RSLT_BUFFER_FULL;
             }
         }
         else
         {
-            //std::cout << "ln:" << __LINE__ << " / debug\n"; //debug
             if (nBufferLen_ < nCurTail_ + nLen)
             {
                 //tail 이후, 남은 버퍼로 모자라는 경우
@@ -142,8 +147,8 @@ class CumBuffer
                     int nSecondBlockLen = nLen - nFirstBlockLen;
 
 #ifdef CUMBUFFER_DEBUG
-                    std::cout << "    ln:" << __LINE__ << " / nFirstBlockLen ="<<nFirstBlockLen<<"\n"; //debug
-                    std::cout << "    ln:" << __LINE__ << " / nSecondBlockLen="<<nSecondBlockLen<<"\n"; //debug
+                    std::cout << "    ln:" << __LINE__ << " / nFirstBlockLen ="<<nFirstBlockLen
+                            << "/nSecondBlockLen="<<nSecondBlockLen<<"\n"; 
 #endif
 
                     if(nFirstBlockLen>0)
@@ -163,15 +168,16 @@ class CumBuffer
                 else
                 {
 #ifdef CUMBUFFER_DEBUG
-                    std::cout << "    ln:" << __LINE__ << " / buffer full!\n"; //debug
+                    std::cout << "    ln:" << __LINE__ << " / buffer full!\n"; 
 #endif
+                    strErrMsg_="buffer full";
                     return cumbuffer_defines::OP_RSLT_BUFFER_FULL;
                 }
             }
             else
             {
-                //가장 일반적인 경우
-                memcpy(pBuffer_+nCurTail_ , pData, nLen); //from start 
+                //most general case
+                memcpy(pBuffer_+nCurTail_ , pData, nLen); 
                 nCurTail_ += nLen;
                 nCumulatedLen_ += nLen;
 #ifdef CUMBUFFER_DEBUG
@@ -206,8 +212,9 @@ class CumBuffer
         if(bPeek && bMoveHeaderOnly)
         {
 #ifdef CUMBUFFER_DEBUG
-            std::cout << "    ln:" << __LINE__ << " / invalid usage\n"; //debug
+            std::cout << "    ln:" << __LINE__ << " / invalid usage\n"; 
 #endif
+            strErrMsg_="invalid usage";
             return cumbuffer_defines::OP_RSLT_INVALID_USAGE;
         }
 
@@ -230,8 +237,9 @@ class CumBuffer
             if (nCurTail_ < nCurHead_ + nLen)
             {
 #ifdef CUMBUFFER_DEBUG
-                std::cout << "    ln:" << __LINE__ << " / invalid request len:"<< nLen<<"\n"; //debug
+                std::cout << "    ln:" << __LINE__ << " / invalid request len:"<< nLen<<"\n"; 
 #endif
+                strErrMsg_="invalid length";
                 return cumbuffer_defines:: OP_RSLT_INVALID_LEN;
             }
             else
@@ -253,8 +261,8 @@ class CumBuffer
                 size_t nFirstBlockLen = nBufferLen_ - nCurHead_;
                 size_t nSecondBlockLen = nLen - nFirstBlockLen;
 #ifdef CUMBUFFER_DEBUG
-                std::cout << "    ln:" << __LINE__ << " / nFirstBlockLen ="<<nFirstBlockLen<<"\n"; //debug
-                std::cout << "    ln:" << __LINE__ << " / nSecondBlockLen="<<nSecondBlockLen<<"\n"; //debug
+                std::cout << "    ln:" << __LINE__ << " / nFirstBlockLen ="<<nFirstBlockLen
+                          << "/nSecondBlockLen="<<nSecondBlockLen<<"\n"; 
 #endif
 
                 if( nCurTail_ > 0 && 
@@ -274,8 +282,9 @@ class CumBuffer
                 else
                 {
 #ifdef CUMBUFFER_DEBUG
-                    std::cout << "    ln:" << __LINE__ << " / invalid request len:"<< nLen<<"\n"; //debug
+                    std::cout << "    ln:" << __LINE__ << " / invalid request len:"<< nLen<<"\n"; 
 #endif
+                    strErrMsg_="invalid length";
                     return cumbuffer_defines:: OP_RSLT_INVALID_LEN;
                 }
             }
@@ -310,10 +319,12 @@ class CumBuffer
     {
         if(nCumulatedLen_ == 0 )
         {
+            strErrMsg_="no data";
             return cumbuffer_defines::OP_RSLT_NO_DATA;
         }
         else if(nCumulatedLen_ < nLen)
         {
+            strErrMsg_="invalid length";
             return cumbuffer_defines:: OP_RSLT_INVALID_LEN;
         }
 
@@ -364,8 +375,10 @@ class CumBuffer
         nCurTail_=0;
     }
 
-  private:
+    std::string GetErrMsg() { return strErrMsg_ ; }
 
+  private:
+    std::string strErrMsg_;
     char*       pBuffer_;
     size_t      nBufferLen_;
     size_t      nCumulatedLen_;
