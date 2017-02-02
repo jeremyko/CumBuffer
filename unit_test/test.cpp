@@ -66,7 +66,58 @@ TEST(Basic, AppendAndGetLoop)
 }
 
 //-----------------------------------------------------------------------------
-TEST(Basic, MoveCurHeader) 
+TEST(Basic, GetLinearFreeSpace) 
+{
+    char data[100];
+    char dataOut[100];
+
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Init(10)); 
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 10);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(), 10);
+
+    memcpy(data,(void*)"abcde", 5);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 5);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(), 5);
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(5, dataOut));
+    EXPECT_EQ(strncmp("abcde", dataOut, 5 ), 0 ); 
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 5);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(), 5);
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.ConsumeData(2));
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(3, dataOut));
+    EXPECT_EQ(strncmp("cde", dataOut, 3 ), 0 ); 
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 7);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(), 5);
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.ConsumeData(2));
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 9);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(), 5);
+}
+
+//-----------------------------------------------------------------------------
+TEST(Basic, IncreaseData) 
+{
+    char data[100];
+    char dataOut[100];
+
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Init(10)); 
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 10);
+
+    memcpy( buffering.GetLinearAppendPtr(),(void*)"abcde", 5);
+
+    buffering.IncreaseData(5);
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 5);
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(5, dataOut));
+    EXPECT_EQ(strncmp("abcde", dataOut, 5 ), 0 ); 
+}
+
+//-----------------------------------------------------------------------------
+TEST(Basic, ConsumeData) 
 {
     char data[100];
     char dataOut[100];
@@ -79,8 +130,8 @@ TEST(Basic, MoveCurHeader)
     ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(5, dataOut));
     EXPECT_EQ(strncmp("abcde", dataOut, 5 ), 0 ); 
 
-    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_INVALID_LEN == buffering.MoveCurHeader(11));
-    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.MoveCurHeader(2));
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_INVALID_LEN == buffering.ConsumeData(11));
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.ConsumeData(2));
     ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.PeekData(3, dataOut));
     EXPECT_EQ(strncmp("cde", dataOut, 3 ), 0 ); 
     EXPECT_EQ   (buffering.GetCurHeadPos(), 2);
@@ -215,6 +266,7 @@ TEST(Exceptional, BufferFull)
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+    //::testing::GTEST_FLAG(filter) = "Basic.IncreaseData";
     return RUN_ALL_TESTS();
 }
 

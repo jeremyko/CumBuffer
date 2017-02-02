@@ -29,12 +29,14 @@
 #include <string>
 #include <string.h>
 #include <stdint.h>
+#include <cstdlib>
 
 //#define CUMBUFFER_DEBUG
 
 namespace cumbuffer_defines
 {
     const int DEFAULT_BUFFER_LEN = 1024 * 4;
+    const int CACHE_LINE_SIZE = 64;
 
     enum OP_RESULT
     {
@@ -197,7 +199,7 @@ class CumBuffer
     }
 
     //------------------------------------------------------------------------
-    cumbuffer_defines::OP_RESULT    MoveCurHeader(size_t nLen)
+    cumbuffer_defines::OP_RESULT    ConsumeData(size_t nLen)
     {
         //PeekData 사용해서 처리한 data length 만큼 버퍼내 nCurHead_ 를 이동.
         return GetData(nLen, NULL, false, true);
@@ -226,6 +228,7 @@ class CumBuffer
         if(cumbuffer_defines::OP_RSLT_OK!=nRslt )
         {
 #ifdef CUMBUFFER_DEBUG
+            std::cout << "    ln:" << __LINE__ << " /" <<strErrMsg_<<"\n";
             DebugPos(__LINE__);
 #endif
             return nRslt;
@@ -309,6 +312,7 @@ class CumBuffer
 
 #ifdef CUMBUFFER_DEBUG
         DebugPos(__LINE__);
+        std::cout << "    ln:" << __LINE__ << " ["<< pDataOut<<"]\n"; 
 #endif
 
         return cumbuffer_defines::OP_RSLT_OK;
@@ -344,7 +348,7 @@ class CumBuffer
     }
 
     //------------------------------------------------------------------------
-    size_t GetFreeSpace()
+    size_t GetTotalFreeSpace()
     {
         return nBufferLen_  - nCumulatedLen_;
     }
@@ -359,6 +363,40 @@ class CumBuffer
     uint64_t GetCurTailPos()
     {
         return nCurTail_; 
+    }
+
+    //------------------------------------------------------------------------
+    uint64_t GetLinearFreeSpace()
+    {
+        //current maximun linear buffer size
+        if(nCumulatedLen_==0)
+        {
+            return nBufferLen_;
+        }
+
+        if(nCurTail_>nCurHead_)
+        {
+            return nBufferLen_- nCurTail_; 
+        }
+        else if(nCurTail_<nCurHead_)
+        {
+            return nCurHead_-nCurTail_; 
+        }
+        return 0;
+    }
+
+    //------------------------------------------------------------------------
+    char* GetLinearAppendPtr()
+    {
+        return (pBuffer_+ nCurTail_);
+    }
+
+    //------------------------------------------------------------------------
+    void IncreaseData(size_t nLen)
+    {
+        //TODO error check?
+        nCurTail_+= nLen;
+        nCumulatedLen_ +=nLen;
     }
 
     //------------------------------------------------------------------------
@@ -378,13 +416,17 @@ class CumBuffer
     std::string GetErrMsg() { return strErrMsg_ ; }
 
   private:
+    CumBuffer(const CumBuffer&) ; //= delete;
+    CumBuffer& operator = (const CumBuffer &) ; //= delete;
+
     std::string strErrMsg_;
     char*       pBuffer_;
     size_t      nBufferLen_;
     size_t      nCumulatedLen_;
-    uint64_t    nCurHead_ __attribute__ ((aligned (64))) ; 
-    uint64_t    nCurTail_ __attribute__ ((aligned (64))) ; 
-};
+    uint64_t    nCurHead_ __attribute__ ((aligned (cumbuffer_defines::CACHE_LINE_SIZE))) ; 
+    uint64_t    nCurTail_ __attribute__ ((aligned (cumbuffer_defines::CACHE_LINE_SIZE))) ; 
+
+} __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) ;
 
 #endif
 
