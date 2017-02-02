@@ -30,7 +30,135 @@ TEST(Basic, AppendAndGet)
     EXPECT_STREQ("aaabbb", dataOut);
     EXPECT_EQ   (buffering.GetCurHeadPos(), 6);
     EXPECT_EQ   (buffering.GetCurTailPos(), 6);
+
+
 }
+
+//-----------------------------------------------------------------------------
+TEST(Basic, Calculations) 
+{
+    char data[100];
+    char dataOut[100];
+
+    CumBuffer buffering; 
+    // nCurHead_=0  / nCurTail_= 0  / nBufferLen_=10 / nCumulatedLen_=0  --> free linear len is 10
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Init(10)); 
+    EXPECT_EQ  (buffering.GetCapacity(),        10);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      0);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    0);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 10);
+
+    // append 3
+    // nCurHead_=0  / nCurTail_= 3  / nBufferLen_=10 / nCumulatedLen_=3  --> free len is 7
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"aaa", 3);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(3, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      3);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    3);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 7);
+
+    // append 4
+    // nCurHead_=0  / nCurTail_= 7  / nBufferLen_=10 / nCumulatedLen_=7  --> free len is 3
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"bbbb", 4);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(4, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      7);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    7);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 3);
+
+    // append 3
+    // nCurHead_=0  / nCurTail_= 10 / nBufferLen_=10 / nCumulatedLen_=10 --> free len is 0 (full)
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"ccc", 3);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(3, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      10);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    10);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 0);
+
+    // get 5
+    // nCurHead_=5  / nCurTail_= 10 / nBufferLen_=10 / nCumulatedLen_=5  --> free len is 5
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.GetData(5, dataOut));
+    EXPECT_STREQ("aaabb", dataOut);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      5);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      10);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    5);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 5);
+
+    // get 2
+    // nCurHead_=7  / nCurTail_= 10 / nBufferLen_=10 / nCumulatedLen_=3  --> free len is 7
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.GetData(2, dataOut));
+    EXPECT_STREQ("bb", dataOut);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      7);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      10);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    3);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 7);
+
+    // get 3
+    // nCurHead_=10 / nCurTail_= 10 / nBufferLen_=10 / nCumulatedLen_=0  --> free len is 10
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.GetData(3, dataOut));
+    EXPECT_STREQ("ccc", dataOut);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      10);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      10);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    0);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 10);
+    
+    // append 3
+    // nCurHead_=10 / nCurTail_= 3  / nBufferLen_=10 / nCumulatedLen_=3  --> free len is 7
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"ddd", 3);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(3, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      10);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      3);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    3);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 7);
+
+    // append 4
+    // nCurHead_=10 / nCurTail_= 7  / nBufferLen_=10 / nCumulatedLen_=7  --> free len is 3
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"eeee", 4);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(4, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      10);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      7);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    7);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 3);
+    
+    // get 4
+    // nCurHead_=4  / nCurTail_= 7  / nBufferLen_=10 / nCumulatedLen_=3  --> free len is 3
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.GetData(4, dataOut));
+    EXPECT_STREQ("ddde", dataOut);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      4);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      7);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    3);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 3); //!!!
+
+    // get 3
+    // nCurHead_=7  / nCurTail_= 7  / nBufferLen_=10 / nCumulatedLen_=0  --> free len is 3
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK == buffering.GetData(3, dataOut));
+    EXPECT_STREQ("eee", dataOut);
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      7);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      7);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    0);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 3); //!!!
+    
+    // append 3
+    // nCurHead_=7  / nCurTail_= 10 / nBufferLen_=10 / nCumulatedLen_=3  --> free len is 7
+    memset(data,0x00, sizeof(data));
+    memcpy(data,(void*)"fff", 3);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(3, data));
+    EXPECT_EQ  (buffering.GetCurHeadPos(),      7);
+    EXPECT_EQ  (buffering.GetCurTailPos(),      10);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),    3);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(), 7);
+}    
 
 //-----------------------------------------------------------------------------
 TEST(Basic, AppendAndGetLoop) 
@@ -98,6 +226,37 @@ TEST(Basic, GetLinearFreeSpace)
 }
 
 //-----------------------------------------------------------------------------
+TEST(Basic, LinearFreeSpaceBoundaryCase) 
+{
+    char data[100];
+    char dataOut[100];
+
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Init(10)); 
+
+    memcpy(data,(void*)"abcde", 5);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
+    memcpy(data,(void*)"ghijk", 5);
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_OK == buffering.Append(5, data));
+    
+    //buffer full
+    EXPECT_EQ   (buffering.GetCurHeadPos(), 0);
+    EXPECT_EQ   (buffering.GetCurTailPos(), 10);
+
+    memset(dataOut, 0x00, sizeof(dataOut));
+    ASSERT_TRUE (cumbuffer_defines::OP_RSLT_OK ==buffering.GetData(10, dataOut));
+    EXPECT_STREQ("abcdeghijk", dataOut);
+
+    EXPECT_EQ   (buffering.GetCurHeadPos(), 10);
+    EXPECT_EQ   (buffering.GetCurTailPos(), 10);
+
+    ASSERT_TRUE(cumbuffer_defines::OP_RSLT_NO_DATA==buffering.GetData(1, dataOut));
+
+    EXPECT_EQ   (buffering.GetTotalFreeSpace(), 10);
+    EXPECT_EQ   (buffering.GetLinearFreeSpace(),10); 
+}
+
+//-----------------------------------------------------------------------------
 TEST(Basic, IncreaseData) 
 {
     char data[100];
@@ -137,6 +296,7 @@ TEST(Basic, ConsumeData)
     EXPECT_EQ   (buffering.GetCurHeadPos(), 2);
     EXPECT_EQ   (buffering.GetCumulatedLen(), 3);
 }
+
 
 //-----------------------------------------------------------------------------
 TEST(Exceptional, BufferFull) 
@@ -267,6 +427,8 @@ int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
     //::testing::GTEST_FLAG(filter) = "Basic.IncreaseData";
+    //::testing::GTEST_FLAG(filter) = "Basic.LinearFreeSpaceBoundaryCase";
+    //::testing::GTEST_FLAG(filter) = "Basic.Calculations";
     return RUN_ALL_TESTS();
 }
 
