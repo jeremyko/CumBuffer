@@ -53,17 +53,20 @@ namespace cumbuffer_defines
 class CumBuffer
 {
   public:
-    CumBuffer() { }
+    CumBuffer() 
+    {
+        pBuffer_=NULL; 
+        nCumulatedLen_=0;
+        nCurHead_=0;
+        nCurTail_=0;
+        nBufferLen_=0;
+    }
 
     virtual ~CumBuffer() { if(pBuffer_) { delete [] pBuffer_; } };
 
     //------------------------------------------------------------------------
     cumbuffer_defines::OP_RESULT    Init(int nMaxBufferLen = cumbuffer_defines::DEFAULT_BUFFER_LEN)
     {
-        pBuffer_ = NULL;
-        nCumulatedLen_=0;
-        nCurHead_=0;
-        nCurTail_=0;
         nBufferLen_ = nMaxBufferLen;
 
         try
