@@ -353,7 +353,7 @@ class CumBuffer
     {
         //current maximun linear buffer size
 
-        if(nCurTail_==nBufferLen_)
+        if(nCurTail_==nBufferLen_) //nCurTail_ is at last position
         {
             return nBufferLen_ - nCumulatedLen_ ; 
         }
@@ -374,10 +374,12 @@ class CumBuffer
     //------------------------------------------------------------------------
     char* GetLinearAppendPtr() //for direct buffer write
     {
-        if(nCurTail_==nBufferLen_)
+        if(nCurTail_==nBufferLen_) //nCurTail_ is at last position
         {
-            if(nBufferLen_!= nCumulatedLen_)
+            if(nBufferLen_!= nCumulatedLen_) //and buffer has free space
             {
+                //-> append at 0  
+                //nCurTail_ -> 버퍼 마지막 위치하고, 버퍼에 공간이 존재. -> 처음에 저장
                 //XXX dangerous XXX 
                 //this is not a simple get function, nCurTail_ changes !!
                 nCurTail_ = 0;
