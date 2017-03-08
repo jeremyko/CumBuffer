@@ -1,7 +1,3 @@
-//#ifdef WIN32
-//#pragma warning (disable : 4244)
-//#endif
-
 #include "CumBuffer.h"
 #include <gtest/gtest.h>
 
