@@ -1,4 +1,4 @@
-#ifndef __CUMBUFFER_HPP__
+﻿#ifndef __CUMBUFFER_HPP__
 #define __CUMBUFFER_HPP__
 /****************************************************************************
  Copyright (c) 2016, ko jung hyun
@@ -49,8 +49,21 @@ namespace cumbuffer_defines
     } ;
 } ;
 
+#ifdef WIN32
+	#define CACHE_ALIGN __declspec(align(cumbuffer_defines::CACHE_LINE_SIZE))  
+#endif
+
+#if defined __APPLE__ || defined __linux__ 
+	#define CACHE_ALIGN __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) 
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
+#ifdef WIN32
+class CACHE_ALIGN CumBuffer
+#endif
+#if defined __APPLE__ || defined __linux__ 
 class CumBuffer
+#endif
 {
   public:
     CumBuffer() 
@@ -423,12 +436,17 @@ class CumBuffer
     char*       pBuffer_;
     size_t      nBufferLen_;
     size_t      nCumulatedLen_;
-    uint64_t    nCurHead_ __attribute__ ((aligned (cumbuffer_defines::CACHE_LINE_SIZE))) ; 
-    uint64_t    nCurTail_ __attribute__ ((aligned (cumbuffer_defines::CACHE_LINE_SIZE))) ; 
 
-} __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) ;
+    uint64_t    nCurHead_  ; 
+    uint64_t    nCurTail_  ; 
+}
+#if defined __APPLE__ || defined __linux__ 
+CACHE_ALIGN 
+#endif
+;
 
 #endif
+
 
 
 

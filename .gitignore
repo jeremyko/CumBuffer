@@ -16,3 +16,4 @@ targetver.h
 *.opendb
 ipch
 test
+build
