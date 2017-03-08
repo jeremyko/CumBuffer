@@ -50,11 +50,11 @@ namespace cumbuffer_defines
 } ;
 
 #ifdef WIN32
-	#define CACHE_ALIGN __declspec(align(cumbuffer_defines::CACHE_LINE_SIZE))  
+    #define CACHE_ALIGN __declspec(align(cumbuffer_defines::CACHE_LINE_SIZE))  
 #endif
 
 #if defined __APPLE__ || defined __linux__ 
-	#define CACHE_ALIGN __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) 
+    #define CACHE_ALIGN __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) 
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

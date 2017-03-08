@@ -294,7 +294,6 @@ TEST(Basic, LinearTest4)
 //-----------------------------------------------------------------------------
 TEST(Basic, IncreaseData) 
 {
-    char data[100];
     char dataOut[100];
 
     CumBuffer buffering;
