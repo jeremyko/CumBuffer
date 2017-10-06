@@ -23,7 +23,7 @@
  ****************************************************************************/
 // https://github.com/jeremyko/CumBuffer
 
-// NO THREAD SAFETY HERE
+// NO THREAD SAFETY HERE !!! 
 ///////////////////////////////////////////////////////////////////////////////
 #include <iostream>
 #include <string>
@@ -36,7 +36,6 @@
 namespace cumbuffer_defines
 {
     const int DEFAULT_BUFFER_LEN = 1024 * 4;
-    const int CACHE_LINE_SIZE = 64;
 
     enum OP_RESULT
     {
@@ -49,21 +48,8 @@ namespace cumbuffer_defines
     } ;
 } ;
 
-#ifdef WIN32
-    #define CACHE_ALIGN __declspec(align(cumbuffer_defines::CACHE_LINE_SIZE))  
-#endif
-
-#if defined __APPLE__ || defined __linux__ 
-    #define CACHE_ALIGN __attribute__ ((aligned(cumbuffer_defines::CACHE_LINE_SIZE))) 
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
-#ifdef WIN32
-class CACHE_ALIGN CumBuffer
-#endif
-#if defined __APPLE__ || defined __linux__ 
 class CumBuffer
-#endif
 {
   public:
     CumBuffer() 
@@ -440,9 +426,6 @@ class CumBuffer
     uint64_t    nCurHead_  ; 
     uint64_t    nCurTail_  ; 
 }
-#if defined __APPLE__ || defined __linux__ 
-CACHE_ALIGN 
-#endif
 ;
 
 #endif
