@@ -8,6 +8,7 @@ Let's take network programming as an example.
 It is necessary to accumulate small pieces of data of arbitrary length to be received. We will process this data when a whole packet length is received. This is a small c ++ class for this case.
 
 ### Usage ###
+just copy CumBuffer.h to your project.
 
 see test.cpp
 
