@@ -11,64 +11,64 @@ It is necessary to accumulate small pieces of data of arbitrary length to be rec
 just copy CumBuffer.h to your project.
 
 see test.cpp
+```cpp
+#include "CumBuffer.h"
 
-    #include "CumBuffer.h"
+CumBuffer buffering;
 
-    CumBuffer buffering;
-    
-    if(cumbuffer_defines::OP_RSLT_OK != buffering.Init(9)) //create buffer with 9 bytes
-    {
-        return false; 
-    } 
-    
-    char data   [100];
-    char dataOut[100];
-    
-    //append 3 bytes 
-    memset(data, 0x00, sizeof(data));
-    memcpy(data, (void*)"aaa", 3);
-    if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(3, data))
-    {
-        return false;
-    }
+if(cumbuffer_defines::OP_RSLT_OK != buffering.Init(9)) //create buffer with 9 bytes
+{
+    return false; 
+} 
 
-    //append 4 bytes
-    memset(data, 0x00, sizeof(data));
-    memcpy(data, (void*)"abbb", 4);
-    if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(4, data))
-    {
-        return false;
-    }
+char data   [100];
+char dataOut[100];
 
-    if(buffering.GetCumulatedLen()!=7) 
-    {
-        return false;
-    }
+//append 3 bytes 
+memset(data, 0x00, sizeof(data));
+memcpy(data, (void*)"aaa", 3);
+if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(3, data))
+{
+    return false;
+}
 
-    //get 4 bytes
-    memset(dataOut, 0x00, sizeof(dataOut));
-    if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(4, dataOut))
-    {
-        return false;
-    }
+//append 4 bytes
+memset(data, 0x00, sizeof(data));
+memcpy(data, (void*)"abbb", 4);
+if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(4, data))
+{
+    return false;
+}
 
-    if( strcmp("aaaa", dataOut)!=0)
-    {
-        return false;
-    }
-    
-    //get 3 bytes
-    memset(dataOut, 0x00, sizeof(dataOut));
-    if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(3, dataOut))
-    {
-        return false;
-    }
+if(buffering.GetCumulatedLen()!=7) 
+{
+    return false;
+}
 
-    if( strcmp("bbb", dataOut)!=0)
-    {
-        return false;
-    }
+//get 4 bytes
+memset(dataOut, 0x00, sizeof(dataOut));
+if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(4, dataOut))
+{
+    return false;
+}
 
+if( strcmp("aaaa", dataOut)!=0)
+{
+    return false;
+}
+
+//get 3 bytes
+memset(dataOut, 0x00, sizeof(dataOut));
+if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(3, dataOut))
+{
+    return false;
+}
+
+if( strcmp("bbb", dataOut)!=0)
+{
+    return false;
+}
+```
 ### benchmark ###
 
 https://gist.github.com/jeremyko/5ddd7796da25918962da0f6ad34e02ae
