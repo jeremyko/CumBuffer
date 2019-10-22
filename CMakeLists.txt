@@ -5,6 +5,10 @@ project (CumBuffer)
 file(GLOB_RECURSE INCS "*.h")
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
+if(APPLE)    
+INCLUDE_DIRECTORIES(/usr/local/include)
+endif()
+
 if(WIN32)    
 set(CMAKE_CXX_FLAGS_DEBUG          " /MTd ")
 set(CMAKE_CXX_FLAGS_RELEASE        " /MT  ")
