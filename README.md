@@ -16,7 +16,7 @@ see test.cpp
 
 CumBuffer buffering;
 
-if(cumbuffer_defines::OP_RSLT_OK != buffering.Init(9)) //create buffer with 9 bytes
+if(cumbuffer::OP_RSLT_OK != buffering.Init(9)) //create buffer with 9 bytes
 {
     return false; 
 } 
@@ -27,7 +27,7 @@ char dataOut[100];
 //append 3 bytes 
 memset(data, 0x00, sizeof(data));
 memcpy(data, (void*)"aaa", 3);
-if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(3, data))
+if(cumbuffer::OP_RSLT_OK != buffering.Append(3, data))
 {
     return false;
 }
@@ -35,7 +35,7 @@ if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(3, data))
 //append 4 bytes
 memset(data, 0x00, sizeof(data));
 memcpy(data, (void*)"abbb", 4);
-if(cumbuffer_defines::OP_RSLT_OK != buffering.Append(4, data))
+if(cumbuffer::OP_RSLT_OK != buffering.Append(4, data))
 {
     return false;
 }
@@ -47,7 +47,7 @@ if(buffering.GetCumulatedLen()!=7)
 
 //get 4 bytes
 memset(dataOut, 0x00, sizeof(dataOut));
-if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(4, dataOut))
+if(cumbuffer::OP_RSLT_OK != buffering.GetData(4, dataOut))
 {
     return false;
 }
@@ -59,7 +59,7 @@ if( strcmp("aaaa", dataOut)!=0)
 
 //get 3 bytes
 memset(dataOut, 0x00, sizeof(dataOut));
-if(cumbuffer_defines::OP_RSLT_OK != buffering.GetData(3, dataOut))
+if(cumbuffer::OP_RSLT_OK != buffering.GetData(3, dataOut))
 {
     return false;
 }
@@ -69,6 +69,3 @@ if( strcmp("bbb", dataOut)!=0)
     return false;
 }
 ```
-### benchmark ###
-
-https://gist.github.com/jeremyko/5ddd7796da25918962da0f6ad34e02ae
