@@ -116,8 +116,8 @@ class CumBuffer
 #ifdef CUMBUFFER_DEBUG
                     DebugPos(__LINE__);
 #endif
-                    int first_block_len  = buffer_len_ - curr_tail_;
-                    int second_block_len = len - first_block_len;
+                    size_t first_block_len  = buffer_len_ - curr_tail_;
+                    size_t second_block_len = len - first_block_len;
 #ifdef CUMBUFFER_DEBUG
                     std::cout <<"["<< __func__ <<"-"<<__LINE__ 
                         <<"] first_block_len ="<<first_block_len  
