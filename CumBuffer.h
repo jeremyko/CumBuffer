@@ -103,7 +103,8 @@ class CumBuffer
 #endif
                 return cumbuffer::OP_RSLT_OK;
             } else {
-                std::cerr <<"["<< __func__ <<"-"<<__LINE__ <<"] buffer full" <<"\n"; 
+                std::cerr <<"["<< __func__ <<"-"<<__LINE__ <<"] buffer full" 
+                    << ", curr_head= " << curr_head_ << ", curr_tail =" <<curr_tail_ << "\n"; 
                 err_msg_="buffer full";
                 return cumbuffer::OP_RSLT_BUFFER_FULL;
             }
@@ -121,7 +122,7 @@ class CumBuffer
 #ifdef CUMBUFFER_DEBUG
                     std::cout <<"["<< __func__ <<"-"<<__LINE__ 
                         <<"] first_block_len ="<<first_block_len  
-                        << "second_block_len="<<second_block_len<<"\n"; 
+                        << ", second_block_len="<<second_block_len<<"\n"; 
 #endif
                     if(first_block_len>0) {
                         memcpy(buffer_ptr_+ curr_tail_ , pData, first_block_len); 
