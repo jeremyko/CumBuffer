@@ -30,6 +30,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <cstdlib>
+#include <cassert>
 
 namespace cumbuffer
 {
@@ -302,6 +303,10 @@ class CumBuffer
     void IncreaseData(size_t len) {
         curr_tail_+= len;
         cumulated_len_ +=len;
+        if (cumulated_len_ > buffer_len_) {
+            std::cerr << "invalid len error!\n";
+        }
+        assert(cumulated_len_ <= buffer_len_);//XXX
     }
     //-------------------------------------------------------------------------
     void    DebugPos(int line) {
