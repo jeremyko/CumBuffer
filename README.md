@@ -57,3 +57,35 @@ if( strcmp("bbb", dataOut)!=0){
     return false;
 }
 ```
+#### Usage : direct buffer write, read ###
+
+```cpp
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer::OP_RSLT_OK == buffering.Init(10)); 
+    EXPECT_EQ  (buffering.GetCurHeadPos(),     0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),     0);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   0);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 10);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),10);
+
+    //direct write to buffer
+    memcpy( buffering.GetLinearAppendPtr(),(void*)"abcde", 5);
+    buffering.IncreaseData(5); //after write, IncreaseData should be called
+
+    EXPECT_EQ  (buffering.GetCurHeadPos(),     0);
+    EXPECT_EQ  (buffering.GetCurTailPos(),     5);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   5);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 5);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),5);
+
+    //direct access to read buffer (for no memcpy)
+    EXPECT_EQ(strncmp("abcde", buffering.GetUnReadDataPtr(), 5 ), 0 ); 
+    buffering.ConsumeData(5); //when buffer usage is finished, ConsumeData should be called
+
+    EXPECT_EQ  (buffering.GetCurHeadPos(),     5);
+    EXPECT_EQ  (buffering.GetCurTailPos(),     5);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 10);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),5); //XXX linear available space !
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   0);
+```
+

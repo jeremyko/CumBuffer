@@ -1,5 +1,5 @@
-﻿#ifndef __CUMBUFFER_HPP__
-#define __CUMBUFFER_HPP__
+﻿#ifndef CUMBUFFER_HPP
+#define CUMBUFFER_HPP
 /****************************************************************************
  Copyright (c) 2016, ko jung hyun
  
@@ -65,6 +65,7 @@ class CumBuffer
         } 
     };
     //-------------------------------------------------------------------------
+    //TODO option for dynamic length 
     cumbuffer::OP_RESULT Init(size_t max_buffer_len = cumbuffer::DEFAULT_BUFFER_LEN) {
         buffer_len_ = max_buffer_len;
         try {
@@ -269,6 +270,10 @@ class CumBuffer
         return curr_tail_; 
     }
     //-------------------------------------------------------------------------
+    char* GetUnReadDataPtr() {
+        return buffer_ptr_+curr_head_ ;
+    }
+    //-------------------------------------------------------------------------
     //for direct buffer write
     uint64_t GetLinearFreeSpace() {
         //current maximun linear buffer size
@@ -338,7 +343,7 @@ class CumBuffer
     uint64_t    curr_tail_  ; 
 } ;
 
-#endif
+#endif // CUMBUFFER_HPP
 
 
 
