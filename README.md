@@ -2,23 +2,21 @@
 
 ### What ###
 
-accumulating byte buffer for c++. 
+Accumulating byte buffer for c++. 
 
-Let's take network programming as an example.
-It is necessary to accumulate small pieces of data of arbitrary length to be received. We will process this data when a whole packet length is received. This is a small c ++ class for this case.
 
 ### Usage ###
-just copy CumBuffer.h to your project.
+Just copy CumBuffer.h to your project.
 
-There are 3 ways to use it.
-
+There are three buffer usage options : 
 - auto growing buffer write, read
 - fixed length buffer write, read
 - direct buffer write, read
 
-see test.cpp
+(see unit_test/test.cpp file)
 
-#### Usage : auto growing buffer write, read ###
+---------------
+***option 1 : auto growing buffer write, read***
 
 If the buffer space runs out, it automatically doubles in size.
 
@@ -67,8 +65,8 @@ EXPECT_EQ  (buffering.GetLinearFreeSpace(),5);
 ASSERT_TRUE(cumbuffer::OP_RSLT_OK == buffering.PeekData(15, dataOut));
 EXPECT_EQ(strncmp("abcdefghijxxxxx", dataOut, 15 ), 0 ); 
 ```
-
-#### Usage : fixed length buffer write, read ###
+---------------
+***option 2 : fixed length buffer write, read***
 
 Fixed length buffer. If there is insufficient space, an buffer full error is returned.
 
@@ -116,8 +114,8 @@ if( strcmp("bbb", dataOut)!=0){
     return false;
 }
 ```
-
-#### Usage : direct buffer write, read ###
+---------------
+***option 3 : direct buffer write, read***
 
 This is useful if you want to minimize memory copying.
 
