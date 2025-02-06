@@ -771,6 +771,55 @@ TEST(AutoGrowingBuffer, AutoGrow4)
 
 
 //-----------------------------------------------------------------------------
+TEST(IncreaseBufferAndCopy, CopyData) {
+    CumBuffer buffering;
+    ASSERT_TRUE(cumbuffer::OP_RSLT_OK == buffering.Init(10)); 
+    EXPECT_EQ  (buffering.GetCurReadPos(),     0);
+    EXPECT_EQ  (buffering.GetCurWritePos(),     0);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   0);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 10);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),10);
+
+    //direct write to buffer
+    memcpy( buffering.GetLinearAppendPtr(),(void*)"abcde", 5);
+    buffering.IncreaseData(5); 
+
+    EXPECT_EQ  (buffering.GetCurReadPos(),     0);
+    EXPECT_EQ  (buffering.GetCurWritePos(),     5);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   5);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 5);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),5);
+
+    buffering.IncreaseBufferAndCopyExisting(20); 
+    EXPECT_EQ  (buffering.GetCapacity(), 20);
+    EXPECT_EQ  (buffering.GetCurReadPos(),     0);
+    EXPECT_EQ  (buffering.GetCurWritePos(),     5);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   5);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 15);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),15);
+    
+    memcpy( buffering.GetLinearAppendPtr(),(void*)"1234512345xxxxx", 15);
+    buffering.IncreaseData(15);
+
+    EXPECT_EQ(strncmp("abcde1234512345xxxxx", buffering.GetUnReadDataPtr(), 20 ), 0 ); 
+    buffering.ConsumeData(20); 
+
+    EXPECT_EQ  (buffering.GetCurReadPos(),     20);
+    EXPECT_EQ  (buffering.GetCurWritePos(),     20);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 20);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),20);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   0);
+
+    buffering.IncreaseBufferAndCopyExisting(40); 
+    EXPECT_EQ  (buffering.GetCapacity(), 40);
+    EXPECT_EQ  (buffering.GetCurReadPos(),     20);
+    EXPECT_EQ  (buffering.GetCurWritePos(),     20);
+    EXPECT_EQ  (buffering.GetTotalFreeSpace(), 40);
+    EXPECT_EQ  (buffering.GetLinearFreeSpace(),20);
+    EXPECT_EQ  (buffering.GetCumulatedLen(),   0);
+}
+
+//-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
@@ -782,8 +831,7 @@ int main(int argc, char* argv[])
     //::testing::GTEST_FLAG(filter) = "Basic.DirectWriteGet";
     //::testing::GTEST_FLAG(filter) = "Exceptional.BufferFull";
     //::testing::GTEST_FLAG(filter) = "AutoGrowingBuffer.AutoGrow4";
+    // ::testing::GTEST_FLAG(filter) = "IncreaseBufferAndCopy.CopyData";
     return RUN_ALL_TESTS();
 }
-
-//g++ -pthread -o test test.cpp /usr/lib/libgtest.a
 
