@@ -1,5 +1,4 @@
 add_executable(unit_test test.cpp ${INCS})
-set(CMAKE_CXX_STANDARD 14)
 
 if(APPLE OR CMAKE_SYSTEM_NAME MATCHES "Linux")
   find_library(GTEST_LIBRARY
@@ -11,8 +10,5 @@ if(APPLE OR CMAKE_SYSTEM_NAME MATCHES "Linux")
   endif()
 endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-  set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-pthread")
-endif()
 
 

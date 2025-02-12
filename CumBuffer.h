@@ -116,6 +116,7 @@ class CumBuffer
                     buffer_ptr_ = new (std::nothrow) char [buffer_len_*2];
                     if(buffer_ptr_ == nullptr) {
                         err_msg_="alloc failed :";
+                        delete [] buffer_tmp;
                         return cumbuffer::OP_RSLT_ALLOC_FAILED;
                     }
                     memcpy(buffer_ptr_ , buffer_tmp, buffer_len_);
@@ -124,6 +125,7 @@ class CumBuffer
                     cumulated_len_ += len;
                     buffer_len_ = buffer_len_ * 2 ;
                     DebugPos(__LINE__);
+                    delete [] buffer_tmp;
                     return cumbuffer::OP_RSLT_OK;
                 }else if(  cur_write_ == cur_read_ ) { 
                     // 중간에 있는 경우
@@ -146,6 +148,7 @@ class CumBuffer
                     buffer_ptr_ = new (std::nothrow) char [buffer_len_*2];
                     if(buffer_ptr_ == nullptr) {
                         err_msg_="alloc failed :";
+                        delete [] buffer_tmp;
                         return cumbuffer::OP_RSLT_ALLOC_FAILED;
                     }
                     memcpy(buffer_ptr_ , buffer_tmp, buffer_len_);
@@ -160,6 +163,7 @@ class CumBuffer
                     cumulated_len_ += len;
                     buffer_len_ = buffer_len_ * 2 ;
                     DebugPos(__LINE__);
+                    delete [] buffer_tmp;
                     return cumbuffer::OP_RSLT_OK;
                 } 
             }else{
@@ -199,6 +203,7 @@ class CumBuffer
                     buffer_ptr_ = new (std::nothrow) char [buffer_len_*2];
                     if(buffer_ptr_ == nullptr) {
                         err_msg_="alloc failed :";
+                        delete [] buffer_tmp;
                         return cumbuffer::OP_RSLT_ALLOC_FAILED;
                     }
                     memcpy(buffer_ptr_ , buffer_tmp, buffer_len_);
@@ -213,6 +218,7 @@ class CumBuffer
                     cumulated_len_ += len;
                     buffer_len_ = buffer_len_ * 2 ;
                     DebugPos(__LINE__);
+                    delete [] buffer_tmp;
                     return cumbuffer::OP_RSLT_OK;
                 }else{
                     //std::cerr <<"["<< __func__ <<"-"<<__LINE__ <<"] *** buffer full ***\n" ;
@@ -263,6 +269,7 @@ class CumBuffer
                         buffer_ptr_ = new (std::nothrow) char [buffer_len_*2];
                         if(buffer_ptr_ == nullptr) {
                             err_msg_="alloc failed :";
+                            delete [] buffer_tmp;
                             return cumbuffer::OP_RSLT_ALLOC_FAILED;
                         }
                         memcpy(buffer_ptr_ , buffer_tmp, buffer_len_);
@@ -277,6 +284,7 @@ class CumBuffer
                         cumulated_len_ += len;
                         buffer_len_ = buffer_len_ * 2 ;
                         DebugPos(__LINE__);
+                        delete [] buffer_tmp;
                         return cumbuffer::OP_RSLT_OK;
                     }else{
                         //std::cerr <<"["<< __func__ <<"-"<<__LINE__ <<"] *** buffer full ***" <<"\n"; 
@@ -497,16 +505,19 @@ class CumBuffer
         assert(cumulated_len_ <= buffer_len_);//XXX
     }
     //-------------------------------------------------------------------------
+    #ifdef CUMBUFFER_DEBUG
     void    DebugPos(int line) {
-#ifdef CUMBUFFER_DEBUG
         std::cout <<"line [" <<line
             <<"] cur_read_=" << cur_read_  
             <<", cur_write_="  << cur_write_ 
             <<", cumulated_len_=" << cumulated_len_ 
             <<", buffer_len_=" << buffer_len_
             <<"\n";
-#endif
     }
+#else
+    void DebugPos(int) {}
+#endif
+
     //-------------------------------------------------------------------------
     void ReSet() {
         cumulated_len_=0;
@@ -532,10 +543,12 @@ class CumBuffer
         buffer_ptr_ = new (std::nothrow) char [buffer_len_];
         if(buffer_ptr_ == nullptr) {
             err_msg_="alloc failed :";
+            delete [] old_buffer_ptr;
             return false;
         }
         memset(buffer_ptr_, '\0', buffer_len_);
         memcpy(buffer_ptr_, old_buffer_ptr, old_buffer_len);
+        delete [] old_buffer_ptr;
 
         return true;
     }
